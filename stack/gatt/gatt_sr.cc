@@ -191,6 +191,14 @@ static bool process_read_multi_rsp(tGATT_SR_CMD* p_cmd, tGATT_STATUS status,
   fixed_queue_enqueue(p_cmd->multi_rsp_q, p_buf);
 
   p_cmd->status = status;
+
+  // We need at least one extra byte for the opcode
+  if (mtu == 0) {
+    LOG(ERROR) << "Invalid MTU";
+    p_cmd->status = GATT_ILLEGAL_PARAMETER;
+    return true;
+  }
+
   if (status == GATT_SUCCESS) {
     VLOG(1) << "Multi read count=" << fixed_queue_length(p_cmd->multi_rsp_q)
             << " num_hdls=" << p_cmd->multi_req.num_handles;
